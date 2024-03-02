@@ -1,37 +1,37 @@
 {% extends "base.html" %}
 
 {% block title %}
-Pet view
+Edit Pet Details
 {% endblock title %}
 
 {% block body %}
-<table class="table">
-    <thead>
-      <tr>
-        <th scope="col">PET ID</th>
-        <th scope="col">BREED</th>
-        <th scope="col">AGE</th>
-        <th scope="col">SPECIES</th>
-        <th scope="col">UNIQUE IDENTIFICATION</th>
-        
-        <th scope="col">EDIT</th>
-        <th scope="col">DELETE</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for post in pet_data %}
-      <tr>
-          <th scope="row">{{ post[0] }}</th>
-          <td>{{ post[1] }}</td>
-          <td>{{ post[2] }}</td>
-          <td>{{ post[3] }}</td>
-          <td>{{ post[4] }}</td>
-          
-          <td><a href="/edit/pet/{{ post[0] }}"><button class="btn btn-primary"> Edit </button></a> </td>
-          <td><a href="delete/pet/{{ post[0] }}"><button onclick="return confirm('Are you sure to delete data');" class="btn btn-danger">Delete</button></a></td>
-      </tr>
-  {% endfor %}
-  
-    </tbody>
-  </table>
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6">
+            <br>
+            <h4 class="text-center bg-success text-white"> Edit Pet Details</h4>
+            <br>
+            <form action="/edit/pet/{{ pet_data[0] }}" method="post">
+
+                <div class="mb-3">
+                    <label for="breed" class="form-label">Breed</label>
+                    <input type="text" class="form-control" id="breed" name="breed" placeholder="Breed" value="{{ post.breed }}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="age" class="form-label">Age</label>
+                    <input type="text" class="form-control" id="age" name="age" placeholder="Age" value="{{ post.age }}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="unique_id" class="form-label">Unique Identification</label>
+                    <input type="text" class="form-control" id="unique_id" name="unique_id" placeholder="Unique Identification" value="{{ post.u_id }}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="species" class="form-label">Species</label>
+                    <input type="text" class="form-control" id="species" name="species" placeholder="Species" value="{{ post.species }}" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Update Pet</button>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock body %}

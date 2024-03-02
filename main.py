@@ -42,6 +42,45 @@ class Pet(db.Model):
     species = db.Column(db.String(50))
     u_id = db.Column(db.String(50))
 
+class health_record(db.Model):
+    record_id=db.Column(db.Integer,primary_key=True)
+    pet_id=db.Column(db.Integer)
+    vaccination=db.Column(db.String(100))
+    medication=db.Column(db.String(100))
+    medical_history=db.Column(db.String(100))
+
+
+class nutrition_and_diet(db.Model):
+    nutrition_diet_id=db.Column(db.Integer,primary_key=True)
+    pet_id=db.Column(db.Integer)
+    diet_plan=db.Column(db.String(100))
+    requirements=db.Column(db.String(100))
+
+
+
+class emergency_contact(db.Model):
+    contact_id=db.Column(db.Integer,primary_key=True)
+    pet_relation=db.Column(db.String(50))
+    name=db.Column(db.String(50))
+    pet_id=db.Column(db.Integer)
+    phone=db.Column(db.String(10))
+
+
+
+class appointment(db.Model):
+    ap_id=db.Column(db.Integer,primary_key=True)
+    pet_id=db.Column(db.Integer)
+    date=db.Column(db.Date)
+    purpose=db.Column(db.String(100))
+    notes=db.Column(db.String(100))
+
+
+
+
+
+
+
+
 
 
 
@@ -52,15 +91,46 @@ def index():
 @app.route('/home')    
 
 
-@app.route('/appointment')
+@app.route('/appointment',methods=['POST','GET'])
 @login_required 
 def appointment():
+    if request.method =="POST":
+        # pet_id=request.form.get('pet_id')
+        pet_id=request.form.get('pet_id')
+        date=request.form.get('date')
+        purpose=request.form.get('purpose')
+        notes=request.form.get('notes')
+
+        query = text(
+            f"INSERT INTO appointment (pet_id, date, purpose, notes) VALUES ('{pet_id}', '{date}', '{purpose}', '{notes}');"
+        )
+        db.session.execute(query)
+        db.session.commit()
+
+        flash("appointment details added","success")
+        return redirect(url_for('index'))
     return render_template('appointment.html')
 
 
-@app.route('/healthrecord')   
+@app.route('/healthrecord',methods=['POST','GET'])   
 @login_required 
 def healthrecord():
+    if request.method =="POST":
+        # pet_id=request.form.get('pet_id')
+        pet_id=request.form.get('pet_id')
+        vaccination=request.form.get('vaccination')
+        medication=request.form.get('medication')
+        medical_history=request.form.get('medical_history')
+
+        query = text(
+            f"INSERT INTO health_record (pet_id, vaccination, medication,medical_history) VALUES ('{pet_id}', '{vaccination}', '{medication}', '{medical_history}');"
+        )
+        db.session.execute(query)
+        db.session.commit()
+
+        flash("health record details added","success")
+        return redirect(url_for('index'))
+
     return render_template('healthrecord.html')
 
 
@@ -72,9 +142,27 @@ def nutrition():
 
 
 
-@app.route('/contact')
+@app.route('/contact',methods=['POST','GET'])
 @login_required 
 def contact():
+    if request.method =="POST":
+        # pet_id=request.form.get('pet_id')
+        pet_relation=request.form.get('pet_relation')
+        name=request.form.get('name')
+        pet_id=request.form.get('pet_id')
+        phone=request.form.get('phone')
+
+        query = text(
+            f"INSERT INTO emergency_contact (pet_relation, name, pet_id, phone) VALUES ('{pet_relation}', '{name}', '{pet_id}', '{phone}');"
+        )
+
+        # Use db.engine.execute to execute the textual SQL expression
+        db.session.execute(query)
+        db.session.commit()
+
+        flash("contact details added","success")
+        return redirect(url_for('index'))
+
     return render_template('contact.html')
 
 
@@ -137,10 +225,36 @@ def login():
             return render_template('login.html')
     
     return render_template('login.html')
+
+
+
+
+
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
     return redirect(url_for('login'))
+
+
+@app.route("/edit/pet/<string:pet_id>", methods=['POST','GET'])
+@login_required
+def epet(pet_id):
+    post = Pet.query.filter_by(pet_id=pet_id).first()
+    if request.method == "POST":
+       breed = request.form.get('breed')
+       age = request.form.get('age')
+       species = request.form.get('species')
+       unique_id = request.form.get('unique_id')
+       print(f"Received form data: breed={breed}, age={age}, species={species}, unique_id={unique_id}")
+
+       query = f"UPDATE Pet SET breed='{breed}', age='{age}', species='{species}', unique_id='{unique_id}' WHERE pet_id={pet_id};"
+       db.session.execute(query)
+       db.session.commit()
+       flash("Updated", "success")
+       return redirect('/view')
+
+    return render_template('edit_pet.html', post=post)
+
 if __name__ == '__main__':
     app.run(debug=True)
