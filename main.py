@@ -58,7 +58,7 @@ class nutrition_and_diet(db.Model):
 
 
 
-class emergency_contact(db.Model):
+class Emergency_contact(db.Model):
     contact_id=db.Column(db.Integer,primary_key=True)
     pet_relation=db.Column(db.String(50))
     name=db.Column(db.String(50))
@@ -67,7 +67,7 @@ class emergency_contact(db.Model):
 
 
 
-class appointment(db.Model):
+class Appointment(db.Model):
     ap_id=db.Column(db.Integer,primary_key=True)
     pet_id=db.Column(db.Integer)
     date=db.Column(db.Date)
@@ -90,7 +90,7 @@ def index():
     return render_template('index.html')
 @app.route('/home')    
 
-
+#appointmnet
 @app.route('/appointment',methods=['POST','GET'])
 @login_required 
 def appointment():
@@ -108,10 +108,10 @@ def appointment():
         db.session.commit()
 
         flash("appointment details added","success")
-        return redirect(url_for('index'))
+        return redirect(url_for('viewappointment'))
     return render_template('appointment.html')
 
-
+#healthrecord
 @app.route('/healthrecord',methods=['POST','GET'])   
 @login_required 
 def healthrecord():
@@ -134,14 +134,14 @@ def healthrecord():
     return render_template('healthrecord.html')
 
 
-
+#nutrition
 @app.route('/nutrition')
 @login_required 
 def nutrition():
     return render_template('nutrition.html')
 
 
-
+#contact
 @app.route('/contact',methods=['POST','GET'])
 @login_required 
 def contact():
@@ -161,12 +161,12 @@ def contact():
         db.session.commit()
 
         flash("contact details added","success")
-        return redirect(url_for('index'))
+        return redirect(url_for('viewcontact'))
 
     return render_template('contact.html')
 
 
-
+#pet register
 @app.route('/pet_register',methods=['POST','GET'])
 def register():
     if request.method =="POST":
@@ -174,22 +174,21 @@ def register():
         breed=request.form.get('breed')
         age=request.form.get('age')
         species=request.form.get('species')
-        unique_id=request.form.get('unique_id')
+        u_id=request.form.get('u_id')
 
         query = text(
-            f"INSERT INTO pet (breed, age, species, u_id) VALUES ('{breed}', '{age}', '{species}', '{unique_id}');"
+            f"INSERT INTO pet (breed, age, species, u_id) VALUES ('{breed}', '{age}', '{species}', '{u_id}');"
         )
 
         # Use db.engine.execute to execute the textual SQL expression
         db.session.execute(query)
         db.session.commit()
-
         flash("Pet details added","success")
         return redirect(url_for('index'))
     return render_template('register.html')
 
-
-@app.route('/pet_add',methods=['GET'])
+#view pet
+@app.route('/view_pet',methods=['GET'])
 def view():
     query = text("SELECT * FROM pet;")
     query_result = db.session.execute(query)
@@ -204,9 +203,39 @@ def view():
     return render_template('view.html', pet_data=pet_data)
 
 
+#view appointment
+@app.route('/view_appointment',methods=['GET'])
+def viewappointment():
+    query = text("SELECT * FROM appointment;")
+    query_result = db.session.execute(query)
+
+    # Fetch all rows from the query result
+    appointment= query_result.fetchall()
+
+    # No need to commit when reading data
+    # db.session.commit()
+   
+    return render_template('view_appointment.html', appointment=appointment)
+
+#view contact
+@app.route('/view_contact',methods=['GET'])
+def viewcontact():
+    query = text("SELECT * FROM emergency_contact;")
+    query_result = db.session.execute(query)
+
+    # Fetch all rows from the query result
+    contact= query_result.fetchall()
+
+    # No need to commit when reading data
+    # db.session.commit()
+   
+    return render_template('view_contact.html', contact=contact)
 
 
 
+
+
+#login
 @app.route('/login', methods=['POST','GET'])
 def login():
     if request.method =="POST":
@@ -229,32 +258,126 @@ def login():
 
 
 
-
+#logout
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
     return redirect(url_for('login'))
 
-
-@app.route("/edit/pet/<string:pet_id>", methods=['POST','GET'])
+#edit pet
+@app.route("/edit/pet/<string:pet_id>", methods=['POST', 'GET'])
 @login_required
 def epet(pet_id):
     post = Pet.query.filter_by(pet_id=pet_id).first()
+    
     if request.method == "POST":
-       breed = request.form.get('breed')
-       age = request.form.get('age')
-       species = request.form.get('species')
-       unique_id = request.form.get('unique_id')
-       print(f"Received form data: breed={breed}, age={age}, species={species}, unique_id={unique_id}")
+        pet_id=request.form.get('pet_id')
+        breed = request.form.get('breed')
+        age = request.form.get('age')
+        species = request.form.get('species')
+        u_id = request.form.get('u_id')
+        print(f"Received form data: breed={breed}, age={age}, species={species}, u_id={u_id}")
 
-       query = f"UPDATE Pet SET breed='{breed}', age='{age}', species='{species}', unique_id='{unique_id}' WHERE pet_id={pet_id};"
-       db.session.execute(query)
-       db.session.commit()
-       flash("Updated", "success")
-       return redirect('/view')
-
+        query = text(
+            f"UPDATE  pet set breed='{breed}',age={age},u_id='{u_id}',species='{species}' where pet_id={pet_id};"
+        )
+        db.session.execute(query)
+        db.session.commit()
+        flash("Updated", "success")
+        return redirect('/view_pet')
+    
+    print(post)
     return render_template('edit_pet.html', post=post)
+
+#edit appointment
+@app.route("/edit/appointment/<string:ap_id>", methods=['POST', 'GET'])
+@login_required
+def editap(ap_id):
+    
+    post = Appointment.query.filter_by(ap_id=ap_id).first()
+    if request.method == "POST":
+        
+        ap_id=request.form.get('ap_id')
+        pet_id = request.form.get('pet_id')
+        date = request.form.get('date')
+        purpose = request.form.get('purpose')
+        notes = request.form.get('notes')
+        # print(f"Received form data: pet_id={pet_id}, date={date}, purpose={purpose}, notes={notes}")
+
+        query = text(
+            f"UPDATE  appointment set pet_id='{pet_id}',date='{date}',purpose='{purpose}',notes='{notes}' where ap_id='{ap_id}';"
+        )
+
+        db.session.execute(query)
+        db.session.commit()
+        flash("Updated", "success")
+        return redirect('/view_appointment')
+    
+    return render_template('edit_appointment.html', post=post)
+
+#edit contact
+@app.route("/edit/contact/<string:contact_id>", methods=['POST', 'GET'])
+@login_required
+def editco(contact_id):
+    
+    post = Emergency_contact.query.filter_by(contact_id=contact_id).first()
+    if request.method == "POST":
+        
+        contact_id_id=request.form.get('contact_id')
+        pet_relation = request.form.get('pet_relation')
+        pet_id = request.form.get('pet_id')
+        phone = request.form.get('phone')
+        
+        # print(f"Received form data: pet_id={pet_id}, date={date}, purpose={purpose}, notes={notes}")
+
+        query = text(
+            f"UPDATE  Emergency_contact set pet_relation='{pet_relation}',pet_id='{pet_id}',phone='{phone}' where   contact_id='{contact_id}';"
+        )
+
+        db.session.execute(query)
+        db.session.commit()
+        flash("Updated", "success")
+        return redirect('/view_contact')
+    
+    return render_template('edit_contact.html', post=post)
+
+
+
+#delete pet
+@app.route("/delete/pet/<string:pet_id>", methods=['POST','GET'])
+@login_required
+def dellp(pet_id):
+    query=text(f"DELETE FROM pet WHERE pet_id={pet_id};")
+    db.session.execute(query)
+    db.session.commit()
+    flash("Deleted","danger")
+    return redirect('/view_pet')
+
+#delete appointment
+@app.route("/delete/appointment/<string:ap_id>", methods=['POST','GET'])
+@login_required
+def dellap(ap_id):
+    query=text(f"DELETE FROM appointment WHERE ap_id={ap_id};")
+
+    
+    db.session.execute(query)
+    db.session.commit()
+    flash("Deleted","danger")
+    return redirect('/view_appointment')
+
+#delete appointment
+@app.route("/delete/contact/<string:contact_id>", methods=['POST','GET'])
+@login_required
+def dellco(contact_id):
+    query=text(f"DELETE FROM Emergency_contact WHERE contact_id={contact_id};")
+
+    
+    db.session.execute(query)
+    db.session.commit()
+    flash("Deleted","danger")
+    return redirect('/view_contact')
+
 
 if __name__ == '__main__':
     app.run(debug=True)

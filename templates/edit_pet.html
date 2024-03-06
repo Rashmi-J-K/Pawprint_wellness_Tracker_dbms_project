@@ -11,26 +11,28 @@ Pet Management
             <br>
             <h4 class="text-center bg-success text-white"> Add Pet Details</h4>
             <br>
-            <form action="/edit/pet/{{ post[0] }}" method="post">
-                <!-- <div class="mb-3">
+            <form action="/edit/pet/{{post.pet_id}}" method="post">
+                <!-- {{ post.pet_id }} -->
+                <div class="mb-3">
                     <label for="pet_id" class="form-label">Pet ID</label>
-                    <input type="text" class="form-control" id="pet_id" name="pet_id"  placeholder="pet_id" value="{{post[0]}}" required>
-                </div> -->
+                    <input type="text" class="form-control" id="pet_id" name="pet_id" placeholder="pet_id" value="{{post.pet_id}}" required readonly>
+
+                </div>
                 <div class="mb-3">
                     <label for="breed" class="form-label">Breed</label>
-                    <input type="text" class="form-control" id="breed" name="breed" placeholder="breed" value="{{post[1]}}" required>
+                    <input type="text" class="form-control" id="breed" name="breed" placeholder="breed" value="{{post.breed}}" required>
                 </div>
                 <div class="mb-3">
                     <label for="age" class="form-label">Age</label>
-                    <input type="text" class="form-control" id="age" name="age" placeholder="age" value="{{post[2]}}" required>
+                    <input type="text" class="form-control" id="age" name="age" placeholder="age" value="{{post.age}}" required >
                 </div>
                 <div class="mb-3">
-                    <label for="unique_id" class="form-label">Unique Identification</label>
-                    <input type="text" class="form-control" id="unique_id" name="unique_id" placeholder="unique_id" value="{{post[3]}}" required>
+                    <label for="u_id" class="form-label">Unique Identification</label>
+                    <input type="text" class="form-control" id="u_id" name="u_id" placeholder="u_id" value="{{post.u_id}}" required>
                 </div>
                 <div class="mb-3">
                     <label for="species" class="form-label">Species</label>
-                    <input type="text" class="form-control" id="species" name="species" required>
+                    <input type="text" class="form-control" id="species" name="species"  placeholder='species' value="{{post.species}}" required>
                 </div>
                 <button type="submit" class="btn btn-primary">Add Pet</button>
             </form>
