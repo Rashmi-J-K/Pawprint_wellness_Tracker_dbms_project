@@ -42,7 +42,7 @@ class Pet(db.Model):
     species = db.Column(db.String(50))
     u_id = db.Column(db.String(50))
 
-class health_record(db.Model):
+class Health_record(db.Model):
     record_id=db.Column(db.Integer,primary_key=True)
     pet_id=db.Column(db.Integer)
     vaccination=db.Column(db.String(100))
@@ -50,7 +50,7 @@ class health_record(db.Model):
     medical_history=db.Column(db.String(100))
 
 
-class nutrition_and_diet(db.Model):
+class Nutrition_and_diet(db.Model):
     nutrition_diet_id=db.Column(db.Integer,primary_key=True)
     pet_id=db.Column(db.Integer)
     diet_plan=db.Column(db.String(100))
@@ -111,8 +111,31 @@ def appointment():
         return redirect(url_for('viewappointment'))
     return render_template('appointment.html')
 
+#nutrition
+@app.route('/nutrition',methods=['POST','GET'])   
+@login_required 
+def nutrition():
+    if request.method =="POST":
+        # pet_id=request.form.get('pet_id')
+        pet_id=request.form.get('pet_id')
+        diet_plan=request.form.get('diet_plan')
+        requirements=request.form.get('requirements')
+      
+
+        query = text(
+            f"INSERT INTO Nutrition_and_diet (pet_id, diet_plan, requirements) VALUES ('{pet_id}', '{diet_plan}', '{requirements}');"
+        )
+        db.session.execute(query)
+        db.session.commit()
+
+        flash("health record details added","success")
+        return redirect(url_for('viewnutrition'))
+
+    return render_template('nutrition.html')
+
+
 #healthrecord
-@app.route('/healthrecord',methods=['POST','GET'])   
+@app.route('/healthrecord',methods=['POST','GET'])
 @login_required 
 def healthrecord():
     if request.method =="POST":
@@ -129,16 +152,8 @@ def healthrecord():
         db.session.commit()
 
         flash("health record details added","success")
-        return redirect(url_for('index'))
-
+        return redirect(url_for('viewhealthrecord'))
     return render_template('healthrecord.html')
-
-
-#nutrition
-@app.route('/nutrition')
-@login_required 
-def nutrition():
-    return render_template('nutrition.html')
 
 
 #contact
@@ -231,7 +246,34 @@ def viewcontact():
    
     return render_template('view_contact.html', contact=contact)
 
+#view helath_record
+@app.route('/view_healthrecord',methods=['GET'])
+def viewhealthrecord():
+    query = text("SELECT * FROM Health_record;")
+    query_result = db.session.execute(query)
 
+    # Fetch all rows from the query result
+    health= query_result.fetchall()
+
+    # No need to commit when reading data
+    # db.session.commit()
+   
+    return render_template('view_healthrecord.html', health=health)
+
+
+#view nutrition
+@app.route('/view_nutrition',methods=['GET'])
+def viewnutrition():
+    query = text("SELECT * FROM Nutrition_and_diet;")
+    query_result = db.session.execute(query)
+
+    # Fetch all rows from the query result
+    nutrition= query_result.fetchall()
+
+    # No need to commit when reading data
+    # db.session.commit()
+   
+    return render_template('view_nutrition.html', nutrition=nutrition)
 
 
 
@@ -342,7 +384,59 @@ def editco(contact_id):
     
     return render_template('edit_contact.html', post=post)
 
+#edit healthrecord
+@app.route("/edit/health/<string:record_id>", methods=['POST', 'GET'])
+@login_required
+def edithealth(record_id):
+    
+    post = Health_record.query.filter_by(record_id=record_id).first()
+    if request.method == "POST":
+        
+        record_id=request.form.get('record_id')
+        pet_id = request.form.get('pet_id')
+        vaccination = request.form.get('vaccination')
+        medication = request.form.get('medication')
+        medical_history = request.form.get('medical_history')
+        
+        
+        # print(f"Received form data: pet_id={pet_id}, date={date}, purpose={purpose}, notes={notes}")
 
+        query = text(
+            f"UPDATE  Health_record set pet_id='{pet_id}',vaccination='{vaccination}',medication='{medication}',medical_history='{medical_history}' where   record_id='{record_id}';"
+        )
+
+        db.session.execute(query)
+        db.session.commit()
+        flash("Updated", "success")
+        return redirect('/view_healthrecord')
+    
+    return render_template('edit_healthrecord.html', post=post)
+
+#edit nutrition
+@app.route("/edit/nutrition/<string:nutrition_diet_id>", methods=['POST', 'GET'])
+@login_required
+def editnu(nutrition_diet_id):
+    
+    post = Nutrition_and_diet.query.filter_by(nutrition_diet_id=nutrition_diet_id).first()
+    if request.method == "POST":
+        
+        pet_id=request.form.get('pet_id')
+        diet_plan = request.form.get('diet_plan')
+        requirements = request.form.get('requirements')
+  
+        
+        # print(f"Received form data: pet_id={pet_id}, date={date}, purpose={purpose}, notes={notes}")
+
+        query = text(
+            f"UPDATE  Nutrition_and_diet set pet_id='{pet_id}',diet_plan='{diet_plan}',requirements='{requirements}' where   nutrition_diet_id='{nutrition_diet_id}';"
+        )
+ 
+        db.session.execute(query)
+        db.session.commit()
+        flash("Updated", "success")
+        return redirect('/view_nutrition')
+    
+    return render_template('edit_nutrition.html', post=post)
 
 #delete pet
 @app.route("/delete/pet/<string:pet_id>", methods=['POST','GET'])
@@ -378,6 +472,29 @@ def dellco(contact_id):
     flash("Deleted","danger")
     return redirect('/view_contact')
 
+#delete health_record
+@app.route("/delete/health/<string:record_id>", methods=['POST','GET'])
+@login_required
+def dellhl(record_id):
+    query=text(f"DELETE FROM Health_record WHERE record_id={record_id};")
+
+    
+    db.session.execute(query)
+    db.session.commit()
+    flash("Deleted","danger")
+    return redirect('/view_healthrecord')
+
+#delete nutrition
+@app.route("/delete/nutrition/<string:nutrition_diet_id>", methods=['POST','GET'])
+@login_required
+def dellnu(nutrition_diet_id):
+    query=text(f"DELETE FROM Nutrition_and_diet WHERE nutrition_diet_id={nutrition_diet_id};")
+
+    
+    db.session.execute(query)
+    db.session.commit()
+    flash("Deleted","danger")
+    return redirect('/view_nutrition')
 
 if __name__ == '__main__':
     app.run(debug=True)

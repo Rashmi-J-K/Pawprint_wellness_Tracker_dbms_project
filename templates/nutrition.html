@@ -24,11 +24,11 @@ Contact
             {% endif %}
             {% endwith %}
 
-            <form action="/nutrition_diet" method="post">
-                <div class="mb-3">
+            <form action="/nutrition" method="post">
+                <!-- <div class="mb-3">
                     <label for="nutrition_diet_id" class="form-label">Nutrition Diet ID</label>
                     <input type="text" class="form-control" id="nutrition_diet_id" name="nutrition_diet_id" required>
-                </div>
+                </div> -->
                 <div class="mb-3">
                     <label for="pet_id" class="form-label">Pet ID</label>
                     <input type="text" class="form-control" id="pet_id" name="pet_id" required>
@@ -38,8 +38,8 @@ Contact
                     <textarea class="form-control" id="diet_plan" name="diet_plan" rows="4" required></textarea>
                 </div>
                 <div class="mb-3">
-                    <label for="requirement" class="form-label">Requirement</label>
-                    <textarea class="form-control" id="requirement" name="requirement" rows="4" required></textarea>
+                    <label for="requirements" class="form-label">Requirement</label>
+                    <textarea class="form-control" id="requirements" name="requirements" rows="4" required></textarea>
                 </div>
                 <button type="submit" class="btn btn-primary">Submit</button>
             </form>
