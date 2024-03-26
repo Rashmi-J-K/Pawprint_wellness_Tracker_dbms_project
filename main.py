@@ -7,7 +7,7 @@ from flask_login import login_user,logout_user,login_manager,LoginManager
 from flask_login import login_required,current_user
 from datetime import datetime
 from sqlalchemy import text
-
+import logging
 # db connection
 local_server = True
 
@@ -203,7 +203,9 @@ def register():
     return render_template('register.html')
 
 #view pet
-@app.route('/view_pet',methods=['GET'])
+
+
+@app.route('/view_pet', methods=['GET'])
 def view():
     query = text("SELECT * FROM pet;")
     query_result = db.session.execute(query)
@@ -213,7 +215,9 @@ def view():
 
     # No need to commit when reading data
     # db.session.commit()
-    print(pet_data)
+    
+    # Use Flask's logger instead of print
+    app.logger.info(pet_data)
 
     return render_template('view.html', pet_data=pet_data)
 
@@ -319,7 +323,8 @@ def epet(pet_id):
         age = request.form.get('age')
         species = request.form.get('species')
         u_id = request.form.get('u_id')
-        print(f"Received form data: breed={breed}, age={age}, species={species}, u_id={u_id}")
+        app.logger.info(f"Received form data: breed={breed}, age={age}, species={species}, u_id={u_id}")
+
 
         query = text(
             f"UPDATE  pet set breed='{breed}',age={age},u_id='{u_id}',species='{species}' where pet_id={pet_id};"
@@ -329,7 +334,7 @@ def epet(pet_id):
         flash("Updated", "success")
         return redirect('/view_pet')
     
-    print(post)
+    app.logger.info(post)
     return render_template('edit_pet.html', post=post)
 
 #edit appointment
@@ -447,6 +452,7 @@ def dellp(pet_id):
     db.session.commit()
     flash("Deleted","danger")
     return redirect('/view_pet')
+
 
 #delete appointment
 @app.route("/delete/appointment/<string:ap_id>", methods=['POST','GET'])
