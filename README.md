@@ -1,7 +1,6 @@
 # Pawprint_wellness_Tracker_dbms_project
 
-# DBMS-Mini-Project
-A DBMS Mini Project on Ice cream parlor management using python flask, bootstrap, XAMPP server.
+A DBMS Mini Project on   Pawprint_wellness_Tracker using python flask, bootstrap, XAMPP server.
 
 Tools required:
 1) XAMPP Server
